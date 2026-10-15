@@ -1,0 +1,11 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#101820">
+    <LinearLayout android:id="@+id/toolbar" android:layout_width="match_parent" android:layout_height="48dp" android:gravity="center_vertical">
+        <Button android:id="@+id/home" android:layout_width="wrap_content" android:layout_height="match_parent" android:text="@string/home_text" />
+        <Button android:id="@+id/settings" android:layout_width="wrap_content" android:layout_height="match_parent" android:text="@string/settings_text" />
+        <TextView android:id="@+id/status" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:textColor="#FFFFFF" android:padding="8dp" android:textSize="13sp" />
+    </LinearLayout>
+    <FrameLayout android:id="@+id/browser_frame" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <WebView android:id="@+id/web" android:layout_width="match_parent" android:layout_height="match_parent" />
+        <pl.bbtv.tv.CursorView android:id="@+id/cursor" android:layout_width="match_parent" android:layout_height="match_parent" android:importantForAccessibility="no" />
+    </FrameLayout>
+</LinearLayout>

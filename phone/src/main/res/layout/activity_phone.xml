@@ -1,0 +1,58 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:background="#F3F7F8">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/view_3_text" android:textSize="26sp" android:textColor="#122B3B" />
+        <TextView android:id="@+id/connection_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/connection_status_text" android:paddingBottom="8dp" android:accessibilityLiveRegion="polite" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+            <EditText android:id="@+id/host" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:hint="@string/host_hint" android:inputType="textUri" android:singleLine="true" android:textSize="15sp" />
+            <Button android:id="@+id/discover" android:layout_width="wrap_content" android:layout_height="48dp" android:text="@string/discover_text" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+            <EditText android:id="@+id/pin" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:hint="@string/pin_hint" android:inputType="numberPassword" android:maxLength="6" android:singleLine="true" />
+            <Button android:id="@+id/pair" android:layout_width="wrap_content" android:layout_height="48dp" android:text="@string/pair_text" />
+            <Button android:id="@+id/connect" android:layout_width="wrap_content" android:layout_height="48dp" android:text="@string/connect_text" />
+        </LinearLayout>
+        <EditText android:id="@+id/address" android:layout_width="match_parent" android:layout_height="48dp" android:hint="@string/address_hint" android:inputType="text" android:singleLine="true" android:imeOptions="actionGo" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+            <Button android:id="@+id/send" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="@string/send_text" />
+            <Button android:id="@+id/voice" android:layout_width="wrap_content" android:layout_height="48dp" android:text="@string/voice_text" />
+            <Button android:id="@+id/language" android:layout_width="wrap_content" android:layout_height="48dp" android:text="@string/language_text" />
+        </LinearLayout>
+        <TextView android:id="@+id/touchpad" android:layout_width="match_parent" android:layout_height="170dp" android:gravity="center" android:background="#163B4C" android:textColor="#FFFFFF" android:textSize="18sp" android:text="@string/touchpad_text" android:contentDescription="@string/touchpad_contentdescription" android:focusable="true" android:clickable="true" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center">
+            <Button android:id="@+id/up" android:layout_width="72dp" android:layout_height="48dp" android:text="@string/up_text" android:contentDescription="@string/up_contentdescription" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center">
+            <Button android:id="@+id/left" android:layout_width="72dp" android:layout_height="48dp" android:text="@string/left_text" android:contentDescription="@string/left_contentdescription" />
+            <Button android:id="@+id/click" android:layout_width="72dp" android:layout_height="48dp" android:text="@string/click_text" />
+            <Button android:id="@+id/right" android:layout_width="72dp" android:layout_height="48dp" android:text="@string/right_text" android:contentDescription="@string/right_contentdescription" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center">
+            <Button android:id="@+id/down" android:layout_width="72dp" android:layout_height="48dp" android:text="@string/down_text" android:contentDescription="@string/down_contentdescription" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+            <Button android:id="@+id/back" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="@string/back_text" />
+            <Button android:id="@+id/forward" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="@string/forward_text" />
+            <Button android:id="@+id/reload" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="@string/reload_text" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+            <Button android:id="@+id/home" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="@string/home_text" />
+            <Button android:id="@+id/media" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="@string/media_text" android:contentDescription="@string/media_contentdescription" />
+            <Button android:id="@+id/fullscreen" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="@string/fullscreen_text" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+            <Button android:id="@+id/volume_down" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="@string/volume_down_text" />
+            <Button android:id="@+id/volume_up" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="@string/volume_up_text" />
+            <Button android:id="@+id/type" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="@string/type_text" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+            <Button android:id="@+id/scroll_up" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="@string/scroll_up_text" />
+            <Button android:id="@+id/scroll_down" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="@string/scroll_down_text" />
+            <Button android:id="@+id/bookmarks" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="@string/bookmarks_text" />
+        </LinearLayout>
+        <Switch android:id="@+id/link_mode" android:layout_width="match_parent" android:layout_height="48dp" android:text="@string/link_mode_text" />
+        <Switch android:id="@+id/adblock" android:layout_width="match_parent" android:layout_height="48dp" android:text="@string/adblock_text" />
+        <Switch android:id="@+id/site_adblock" android:layout_width="match_parent" android:layout_height="48dp" android:text="@string/site_adblock_text" />
+        <Button android:id="@+id/search_settings" android:layout_width="match_parent" android:layout_height="48dp" android:text="@string/search_settings_text" />
+        <TextView android:id="@+id/page_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="8dp" android:text="@string/page_status_text" android:textIsSelectable="true" />
+    </LinearLayout>
+</ScrollView>
