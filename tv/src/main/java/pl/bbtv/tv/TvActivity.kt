@@ -22,7 +22,7 @@ import android.app.job.JobInfo
 import android.content.ComponentName
 import java.io.ByteArrayInputStream
 import java.util.Locale
-import android.widget.Button
+import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -97,6 +97,7 @@ class TvActivity : Activity() {
             override fun onShowCustomView(view: android.view.View, callback: WebChromeClient.CustomViewCallback) { full.show(view, callback) }
             override fun onHideCustomView() { full.exit() }
             override fun onCreateWindow(view: WebView?, dialog: Boolean, gesture: Boolean, message: android.os.Message?): Boolean = false
+            override fun onProgressChanged(view: WebView, progress: Int) { progress(progress) }
         }
         web.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView, url: String, icon: Bitmap?) { full.exit(); pageHost = android.net.Uri.parse(url).host?.lowercase(Locale.ROOT).orEmpty(); cosmeticBlocked = 0; mediaActive = false }
@@ -109,17 +110,29 @@ class TvActivity : Activity() {
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
                 return runCatching { Protocol.url(url); SystemClock.elapsedRealtime() - lastClick > 1200 }.getOrDefault(true)
             }
-            override fun onPageFinished(view: WebView, url: String) { pageTitle = view.title ?: url; inject(); server?.publish(state()) }
+            override fun onPageFinished(view: WebView, url: String) { pageTitle = view.title ?: url; inject(); updateHeader(); server?.publish(state()) }
         }
-        findViewById<Button>(R.id.home).setOnClickListener { home() }
-        findViewById<Button>(R.id.settings).setOnClickListener { settings() }
+        for (id in intArrayOf(R.id.home, R.id.settings)) findViewById<View>(id).setOnFocusChangeListener { chip, focused -> chip.animate().scaleX(if (focused) 1.08f else 1f).scaleY(if (focused) 1.08f else 1f).setDuration(150).start() }
+        findViewById<View>(R.id.home).setOnClickListener { home() }
+        findViewById<View>(R.id.settings).setOnClickListener { settings() }
+        findViewById<View>(R.id.progress).pivotX = 0f
+        updateHeader()
         scheduleAdUpdates()
         home()
         web.requestFocus()
         if (chromeMajor < 90) Toast.makeText(this, "Stary WebView (Chrome $chromeMajor). Zaktualizuj Android System WebView w Sklepie Play.", Toast.LENGTH_LONG).show()
     }
     private var lastClick = 0L
-    private fun updateHeader() { findViewById<TextView>(R.id.status).text = "${TvDiscovery.addresses()}:${Protocol.PORT} • PIN: ${pairing.label()}\n${if (serverError.isBlank()) if (linkMode) "Tryb linków" else "Tryb kursora" else serverError}" }
+    private fun updateHeader() {
+        findViewById<TextView>(R.id.status).text = if (serverError.isNotBlank()) serverError else "${if (linkMode) "Linki" else "Kursor"}  ·  PIN ${pairing.label()}  ·  ${TvDiscovery.addresses()}:${Protocol.PORT}"
+        val uri = android.net.Uri.parse(web.url ?: "")
+        findViewById<TextView>(R.id.address).text = if (uri.host == null || uri.host == "home.bbtv.invalid") "Ulubione" else "${if (uri.scheme == "https") "🔒 " else ""}${uri.host!!.removePrefix("www.")}"
+    }
+    private fun progress(value: Int) {
+        val bar = findViewById<View>(R.id.progress)
+        bar.visibility = if (value in 1..99) View.VISIBLE else View.INVISIBLE
+        bar.scaleX = value / 100f
+    }
     private fun state(): JSONObject = Protocol.frame("state").put("url", web.url ?: "").put("title", pageTitle).put("bookmarks", bookmarks.json()).put("search", searchTemplate).put("linkMode", linkMode).put("webView", webVersion).put("chromeMajor", chromeMajor).put("adblock", adBlock.enabled).put("siteAdblock", adBlock.siteEnabled(pageHost)).put("networkBlocked", adBlock.blocked.get()).put("cosmeticBlocked", cosmeticBlocked).put("mediaActive", mediaActive).put("fullscreen", full.fullscreen)
     private fun settings() {
         val actions = arrayOf("Nowy PIN (2 minuty)", "Unieważnij wszystkie telefony", "Tryb linków: ${if (linkMode) "włączony" else "wyłączony"}", "Wyszukiwarka", "Adblock globalnie: ${adBlock.enabled}", "Adblock tej domeny: ${adBlock.siteEnabled(pageHost)}")
@@ -149,7 +162,7 @@ class TvActivity : Activity() {
     private fun move(dx: Float, dy: Float) {
         if (linkMode) {
             val delta = if (dy < 0 || dx < 0) -1 else 1
-            script("var a=document.querySelectorAll('a[href],button,input,select,textarea,[tabindex]');var v=[];for(var i=0;i<a.length&&v.length<300;i++){if(a[i].offsetWidth&&a[i].offsetHeight)v.push(a[i]);}var n=-1;for(var j=0;j<v.length;j++){if(v[j]===document.activeElement)n=j;}if(v.length){if(n<0&&$delta<0)n=0;var old=window.__bbtvFocus;if(old&&old[0])old[0].style.outline=old[1];var el=v[(n+$delta+v.length)%v.length];window.__bbtvFocus=[el,el.style.outline];el.focus();el.scrollIntoView(false);el.style.outline='3px solid #50e3c2';}")
+            script("var a=document.querySelectorAll('a[href],button,input,select,textarea,[tabindex]');var v=[];for(var i=0;i<a.length&&v.length<300;i++){if(a[i].offsetWidth&&a[i].offsetHeight)v.push(a[i]);}var n=-1;for(var j=0;j<v.length;j++){if(v[j]===document.activeElement)n=j;}if(v.length){if(n<0&&$delta<0)n=0;var old=window.__bbtvFocus;if(old&&old[0]){old[0].style.outline=old[1];old[0].style.outlineOffset=old[2];}var el=v[(n+$delta+v.length)%v.length];window.__bbtvFocus=[el,el.style.outline,el.style.outlineOffset];el.focus();el.scrollIntoView(false);el.style.outline='4px solid #f5f5f7';el.style.outlineOffset='3px';}")
         } else {
             if (cursor.height > 0) {
                 if (cursor.cy + dy < 0 || cursor.cy + dy >= cursor.height) web.scrollBy(0, (dy * 4).toInt())

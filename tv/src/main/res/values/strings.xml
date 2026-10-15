@@ -1,4 +1,4 @@
 <resources>
     <string name="home_text">Start</string>
-    <string name="settings_text">Ustawienia / PIN</string>
+    <string name="settings_text">Ustawienia</string>
 </resources>

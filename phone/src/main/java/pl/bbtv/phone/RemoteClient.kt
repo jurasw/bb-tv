@@ -17,7 +17,8 @@ class RemoteClient(private val onStatus: (String) -> Unit, private val onFrame: 
     private var pin = ""
     private var deviceId = ""
     private var attempts = 0
-    private var ready = false
+    var ready = false
+        private set
     private val retry = Runnable { if (enabled) connect() }
     fun start(host: String, savedToken: String, pairPin: String = "", expectedDeviceId: String = "") {
         stop(); address = host; token = savedToken; pin = pairPin; deviceId = expectedDeviceId; enabled = true; attempts = 0; connect()

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>BB TV — test lokalny</title>
+    <style>
+        body { background: #101820; color: #eaf6f4; font: 22px sans-serif; padding: 24px; }
+        a { color: #50e3c2; } input, button { font-size: 22px; margin: 8px; padding: 12px; }
+        video { width: 640px; max-width: 95%; background: black; }
+        .ad-banner { padding: 20px; background: #a04420; }
+    </style>
+</head>
+<body>
+    <h1>BB TV — test bez internetu</h1>
+    <p>Sprawdź touchpad, linki, wpisywanie, przewijanie i odtwarzanie.</p>
+    <div class="ad-banner">TEST FILTRA: ten baner znika przy włączonym adblocku.</div>
+    <p><input id="field" aria-label="Pole testowe" placeholder="Kliknij i wpisz z telefonu" oninput="document.getElementById('result').textContent=this.value"></p>
+    <p id="result">Tu pojawi się wpisany tekst.</p>
+    <p><a href="next.html">Przejdź na następną stronę i sprawdź Wstecz</a></p>
+    <video id="video" src="sample.mp4" controls muted loop preload="metadata"></video>
+    <p>Film ma 6 sekund i ścieżkę audio. Domyślnie jest wyciszony. Play/pauza i pełny ekran działają z obu pilotów.</p>
+    <p><button onclick="window.open('next.html')">Test blokady popupu</button></p>
+    <div style="height:800px"></div>
+    <h2>Koniec strony — przewijanie działa</h2>
+    <p><a href="#video">Wróć do filmu</a></p>
+</body>
+</html>

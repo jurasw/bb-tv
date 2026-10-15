@@ -1,6 +1,6 @@
 # BB TV — prywatna przeglądarka Android TV sterowana telefonem
 
-Kotlin, Gradle multi-module: `tv` (minSdk 21, target 28), `phone` (minSdk 24, target 35), `protocol` (minSdk 21). Jedna WebView, widoki XML, NanoHTTPD + nanohttpd-websocket 2.3.1. Telefon używa Java-WebSocket 1.5.7. Bez konta, backendu chmurowego, telemetrii i Android Studio. Komunikacja pilota odbywa się w lokalnej sieci IPv4.
+Kotlin, Gradle multi-module: `tv` (minSdk 21, target 28), `phone` (minSdk 24, target 35), `protocol` (minSdk 21). Jedna WebView, widoki XML, NanoHTTPD + nanohttpd-websocket 2.3.1. Telefon używa Java-WebSocket 1.5.7. Bez konta, backendu chmurowego i telemetrii. Budowanie nie wymaga Android Studio. Komunikacja pilota odbywa się w lokalnej sieci IPv4.
 
 Priorytetem jest Xiaomi Mi TV 4A 43″ Full HD / Android 9 / 1 GB RAM. Emulacja i testy JVM nie potwierdzają wydajności, kodeków ani zgodności serwisów na tym telewizorze. To prywatny projekt do instalacji APK, bez konfiguracji publikacji w Google Play.
 
@@ -128,6 +128,42 @@ HTTP/WS w LAN **nie szyfruje** PIN-u, tokenu ani komend. Używaj zaufanej domowe
 Reconnect telefonu ma opóźnienie 1–15 s i heartbeat WebSocket. Po utracie połączenia nie odtwarza kolejki gestów ani kliknięć. TV musi być otwarty; zamknięcie/tło wyłącza serwer. NSD jest wygodą, ręczne IP pozostaje podstawową alternatywą. Zmiana adresu DHCP może wymagać ponownego wyboru TV/parowania; warto przypisać TV stały adres w routerze.
 
 ## Testowanie
+
+### Test w Android Studio
+
+Otwórz katalog repozytorium w Android Studio. Użyj SDK wskazanego przez `local.properties` i **JDK 17** jako Gradle JDK. Na tym Macu ustawione jest `GRADLE_LOCAL_JAVA_HOME`, które odczytuje `java.home` z ignorowanego `.gradle/config.properties`; nowy JBR 25 w Studio nie zastępuje JDK 17 projektu. Zobacz [konfigurację JDK w Studio](https://developer.android.com/build/jdks).
+
+Do szybkiego testu przygotowano dwa AVD: `BB_TV_API30` i `BB_Phone_API30`. Korzystają z tego samego obrazu AOSP Android 11 / ARM64, ale mają osobne dane i procesy. TV ma ekran 1920×1080 w poziomie; telefon jest w pionie. **To test aplikacji TV na zwykłym Androidzie, bez systemowego launchera Android TV. Nie emuluje firmware Xiaomi ani Androida 9.** Emulator 37.2.12 podnosi żądane 1024 MB RAM do 2048 MB, więc ten test nie potwierdza działania na sprzęcie z 1 GB RAM. Pełny obraz Android TV na Apple Silicon wymaga większego pobrania i nowszego API.
+
+Po utworzeniu tych AVD można uruchomić oba okna i wgrać aplikacje jednym poleceniem (wymagany Python 3):
+
+```sh
+./scripts/run-demo.sh
+```
+
+Skrypt buduje APK, uruchamia emulatory, instaluje aplikacje i tworzy przekierowanie do serwera TV. Na ekranie telefonu wpisz **`10.0.2.2:18765`**, PIN z okna TV i wybierz **Sparuj**. Dane AVD i sparowanie są zachowywane. Okna emulatorów pozostają otwarte po zakończeniu skryptu. W Android Studio znajdziesz urządzenia w **Device Manager**. Moduł `phone` można uruchamiać przyciskiem Run; dla `tv` użyj skryptu, jeśli Studio odrzuca profil AOSP z powodu braku systemowej funkcji Leanback.
+
+Adres `10.0.2.2` prowadzi do komputera hosta, a `adb forward` łączy port 18765 hosta z 8765 emulatora TV. Jest to lokalny fallback, który nie wymaga działania NSD pomiędzy emulatorami. Zobacz [sieć emulatora](https://developer.android.com/studio/run/emulator-networking-address).
+
+Pierwsza konfiguracja emulatorów na nowym komputerze:
+
+```sh
+scripts/android-env.sh sdkmanager 'emulator' 'system-images;android-30;default;arm64-v8a'
+scripts/android-env.sh avdmanager create avd -n BB_TV_API30 -k 'system-images;android-30;default;arm64-v8a' -d pixel_5
+scripts/android-env.sh avdmanager create avd -n BB_Phone_API30 -k 'system-images;android-30;default;arm64-v8a' -d pixel_5
+```
+
+Dla TV ustaw w Device Manager rozmiar wyświetlacza 1920×1080, density 160 i orientację poziomą (albo odpowiednie `hw.lcd.width`, `hw.lcd.height`, `hw.lcd.density`, `hw.initialOrientation` w jego `config.ini`). Na hoście Intel/AMD wybierz obraz `x86_64`. Istniejący stary AVD Pixel użytkownika nie jest zmieniany. Jeśli porty 5554/5556 są zajęte, skrypt przyjmuje `BBTV_TV_PORT` i `BBTV_PHONE_PORT` z wolnymi parzystymi portami.
+
+Opcjonalna strona testowa bez dostępu do internetu:
+
+```sh
+python3 -m http.server 18766 --bind 127.0.0.1 --directory tests/browser-fixture
+```
+
+Wyślij z pilota telefonu URL **`http://10.0.2.2:18766/index.html`**. Strona ma pole tekstowe, link do testowania historii, baner do sprawdzenia adblocka i własny 6-sekundowy film H.264/AAC, domyślnie wyciszony. Film jest zasobem testowym poza APK. Głos na emulatorze API 30 korzysta z alternatywy tekstowej; lokalne rozpoznawanie głosu sprawdzaj na telefonie API 31+ z silnikiem on-device.
+
+### Testy automatyczne
 
 ```sh
 ./gradlew assembleDebug
