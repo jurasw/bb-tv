@@ -28,4 +28,13 @@ class ProtocolTest {
         assertEquals("https://example.org", Protocol.url("example.org"))
         assertNull(Protocol.sharedUrl("sam tekst"))
     }
+    @Test fun resolvesAddressOrGoogleSearch() {
+        val google = "https://www.google.com/search?q={query}"
+        assertEquals("https://www.rivestream.app/", Protocol.resolve(" https://www.rivestream.app/ ", google))
+        assertEquals("https://rivestream.app", Protocol.resolve("rivestream.app", google))
+        assertEquals("https://claude.ai/new", Protocol.resolve("claude.ai/new", google))
+        assertEquals("https://www.google.com/search?q=diuna+2", Protocol.resolve("diuna 2", google))
+        assertEquals("https://www.google.com/search?q=pogoda", Protocol.resolve("pogoda", google))
+        assertEquals("https://www.google.com/search?q=v1.2", Protocol.resolve("v1.2", google))
+    }
 }

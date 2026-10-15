@@ -9,8 +9,9 @@ object Protocol {
     const val VERSION = 1
     const val PORT = 8765
     const val SERVICE = "_tvbrowser._tcp."
+    const val SITE = "https://bbtv.juraswis.workers.dev"
     const val MAX_MESSAGE = 16384
-    val commands = setOf("open", "search", "back", "forward", "reload", "home", "scroll", "move", "click", "type", "volume", "media", "fullscreen", "link_mode", "bookmark_add", "bookmark_delete", "bookmark_move", "adblock", "config", "state")
+    val commands = setOf("open", "search", "back", "forward", "reload", "home", "scroll", "move", "click", "type", "volume", "media", "fullscreen", "link_mode", "bookmark_add", "bookmark_delete", "bookmark_move", "adblock", "config", "state", "elements", "activate", "fill", "history", "history_clear")
     fun frame(type: String): JSONObject = JSONObject().put("v", VERSION).put("type", type)
     fun command(name: String, data: JSONObject = JSONObject()): JSONObject {
         require(name in commands)
@@ -46,6 +47,12 @@ object Protocol {
         require(query.isNotBlank() && query.length <= 2048)
         require(template.contains("{query}"))
         return url(template.replace("{query}", URLEncoder.encode(query, "UTF-8")))
+    }
+    fun resolve(input: String, template: String): String {
+        val text = input.trim()
+        sharedUrl(text)?.let { return it }
+        if (Regex("[^\\s./:]+(\\.[^\\s./:]+)*\\.[a-zA-Z]{2,}(:[0-9]{1,5})?([/?#]\\S*)?").matches(text)) runCatching { return url(text) }
+        return search(text, template)
     }
     fun sharedUrl(text: String): String? {
         var candidate = Regex("https?://[^\\s<>]+", RegexOption.IGNORE_CASE).find(text)?.value ?: return null

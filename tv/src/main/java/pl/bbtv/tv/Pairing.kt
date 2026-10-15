@@ -19,6 +19,7 @@ class Pairing(private val prefs: SharedPreferences) {
         return pin
     }
     @Synchronized fun label(): String = if (SystemClock.elapsedRealtime() < expires) pin else "wygasł — odnowienie w ustawieniach"
+    @Synchronized fun active(): String? = if (SystemClock.elapsedRealtime() < expires) pin else null
     @Synchronized fun pair(value: String): String? {
         val now = SystemClock.elapsedRealtime()
         if (now < lockedUntil || now >= expires) return null

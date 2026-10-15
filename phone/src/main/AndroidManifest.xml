@@ -7,6 +7,8 @@
     <application android:icon="@drawable/icon" android:label="Wyślij na TV" android:theme="@style/AppTheme" android:usesCleartextTraffic="true" android:allowBackup="false" android:fullBackupContent="false" android:dataExtractionRules="@xml/data_extraction_rules">
         <activity android:name=".PhoneActivity" android:exported="true" android:launchMode="singleTop" android:configChanges="orientation|screenSize|keyboardHidden">
             <intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter>
+            <intent-filter android:autoVerify="true"><action android:name="android.intent.action.VIEW" /><category android:name="android.intent.category.DEFAULT" /><category android:name="android.intent.category.BROWSABLE" /><data android:scheme="https" android:host="bbtv.juraswis.workers.dev" android:path="/p" /></intent-filter>
+            <intent-filter><action android:name="android.intent.action.VIEW" /><category android:name="android.intent.category.DEFAULT" /><category android:name="android.intent.category.BROWSABLE" /><data android:scheme="bbtv" android:host="pair" /></intent-filter>
             <intent-filter><action android:name="android.intent.action.SEND" /><category android:name="android.intent.category.DEFAULT" /><data android:mimeType="text/plain" /></intent-filter>
         </activity>
         <service android:name=".SendTileService" android:label="Wyślij na TV" android:icon="@android:drawable/ic_menu_send" android:permission="android.permission.BIND_QUICK_SETTINGS_TILE" android:exported="true">

@@ -92,7 +92,16 @@ class PhoneActivity : ComponentActivity(), Remote {
         runCatching { speech!!.startListening(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM).putExtra(RecognizerIntent.EXTRA_LANGUAGE, ui.language).putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true).putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)) }.onFailure { notice("Nie można uruchomić lokalnego rozpoznawania. Wpisz tekst.") }
     }
     override fun onRequestPermissionsResult(request: Int, permissions: Array<String>, results: IntArray) { super.onRequestPermissionsResult(request, permissions, results); if (request == 41 && results.firstOrNull() == PackageManager.PERMISSION_GRANTED) voice() }
+    private var pendingPair: android.net.Uri? = null
+    private fun consumePairing(): Boolean { val uri = pendingPair ?: return false; pendingPair = null; receivePairing(uri); return true }
+    private fun receivePairing(uri: android.net.Uri) {
+        val params = listOfNotNull(uri.encodedFragment, uri.encodedQuery).flatMap { it.split('&') }.mapNotNull { part -> part.split('=', limit = 2).takeIf { it.size == 2 }?.let { it[0] to android.net.Uri.decode(it[1]) } }.toMap()
+        val host = params["h"] ?: return
+        ui.host = host; ui.pin = params["p"].orEmpty()
+        connect(ui.pin.isNotEmpty())
+    }
     private fun receiveShare(intent: Intent?) {
+        if (intent?.action == Intent.ACTION_VIEW) { pendingPair = intent.data; if (lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) consumePairing(); return }
         if (intent?.action == Intent.ACTION_SEND) {
             val link = Protocol.sharedUrl(intent.getStringExtra(Intent.EXTRA_TEXT).orEmpty())
             if (link == null) { notice("Udostępniony tekst nie zawiera URL HTTP/HTTPS"); return }
@@ -102,7 +111,7 @@ class PhoneActivity : ComponentActivity(), Remote {
     }
     override fun onSaveInstanceState(out: Bundle) { out.putString("pendingShare", pendingShare); super.onSaveInstanceState(out) }
     override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); setIntent(intent); receiveShare(intent) }
-    override fun onStart() { super.onStart(); discovery.start(); if (ui.host.isNotBlank()) connect(false) }
+    override fun onStart() { super.onStart(); discovery.start(); if (!consumePairing() && ui.host.isNotBlank()) connect(false) }
     override fun onStop() { main.removeCallbacksAndMessages(null); discovery.stop(); client.stop(); ui.connected = false; speech?.cancel(); ui.listening = false; super.onStop() }
     override fun onDestroy() { speech?.destroy(); speech = null; super.onDestroy() }
 }

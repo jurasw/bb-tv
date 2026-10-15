@@ -13,8 +13,9 @@ android {
 dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.14.1")
-    testImplementation("org.java-websocket:Java-WebSocket:1.5.7")
     implementation(project(":protocol"))
+    implementation("com.google.zxing:core:3.5.3")
+    implementation("org.java-websocket:Java-WebSocket:1.5.7")
     implementation("org.nanohttpd:nanohttpd:2.3.1")
     implementation("org.nanohttpd:nanohttpd-websocket:2.3.1")
 }

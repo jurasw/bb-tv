@@ -1,4 +1,10 @@
 <resources>
-    <string name="home_text">Start</string>
+    <string name="home_text">Strona główna</string>
     <string name="settings_text">Ustawienia</string>
+    <string name="back">Wstecz</string>
+    <string name="forward">Dalej</string>
+    <string name="reload">Odśwież</string>
+    <string name="bookmark">Dodaj do ulubionych</string>
+    <string name="history">Historia</string>
+    <string name="address_hint">Szukaj w Google lub wpisz adres</string>
 </resources>

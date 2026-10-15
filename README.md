@@ -1,6 +1,8 @@
 # BB TV — prywatna przeglądarka Android TV sterowana telefonem
 
-Kotlin, Gradle multi-module: `tv` (minSdk 21, target 28), `phone` (minSdk 24, target 35), `protocol` (minSdk 21). Jedna WebView, widoki XML, NanoHTTPD + nanohttpd-websocket 2.3.1. Telefon używa Java-WebSocket 1.5.7. Bez konta, backendu chmurowego i telemetrii. Budowanie nie wymaga Android Studio. Komunikacja pilota odbywa się w lokalnej sieci IPv4.
+**Pilot w przeglądarce (Android i iPhone): https://bbtv.juraswis.workers.dev**
+
+Kotlin, Gradle multi-module: `tv` (minSdk 21, target 28), `phone` (minSdk 24, target 35), `protocol` (minSdk 21). TV: jedna WebView i lekkie widoki XML. Główny pilot to aplikacja webowa na Cloudflare Workers (`web/`), działająca w Safari i Chrome na telefonie. TV łączy się z Workerem przez WebSocket (Java-WebSocket 1.5.7), a Durable Object przekazuje komendy między telefonem a TV. Kod QR: ZXing core. Opcjonalna natywna aplikacja `phone` (Jetpack Compose) nadal steruje w LAN przez NanoHTTPD + nanohttpd-websocket 2.3.1. Bez kont i telemetrii. Budowanie nie wymaga Android Studio.
 
 Priorytetem jest Xiaomi Mi TV 4A 43″ Full HD / Android 9 / 1 GB RAM. Emulacja i testy JVM nie potwierdzają wydajności, kodeków ani zgodności serwisów na tym telewizorze. To prywatny projekt do instalacji APK, bez konfiguracji publikacji w Google Play.
 
@@ -65,6 +67,28 @@ Przy lokalnych narzędziach zamiast `adb` użyj `scripts/android-env.sh adb`. De
 
 ## Parowanie i sterowanie
 
+### Telefon w przeglądarce (zalecane)
+
+1. Uruchom BB TV. W prawym dolnym rogu ekranu startowego jest kod QR i 6-cyfrowy kod.
+2. Zeskanuj QR aparatem (iPhone lub Android). Otworzy się `https://bbtv.juraswis.workers.dev/#r=…` i telefon od razu steruje tym TV. Możesz też wejść na stronę i wpisać kod. Kod działa 2 minuty i jest jednorazowy.
+3. Telefon nie musi być w tej samej sieci. TV potrzebuje internetu.
+
+Na telefonie:
+
+* **Pole adresu**: tekst bez spacji z domeną otwiera stronę, a reszta idzie do Google. TV od razu przechodzi na wynik.
+* **Strona**: lista linków, przycisków i pól z aktualnej strony na TV. Dotknięcie elementu klika go na TV, bez celowania kursorem. Pola tekstowe wypełniasz klawiaturą telefonu (**Wpisz** = wpisz i zatwierdź Enterem).
+* **Pilot**: touchpad, strzałki, OK i wpisywanie do aktywnego pola.
+* **Ulubione** i **Historia**: otwieranie na TV, usuwanie, czyszczenie.
+* Pasek: wstecz, dalej, odśwież, start, odtwarzaj/pauza, pełny ekran, głośność.
+
+Link z QR zawiera 256-bitowy sekret pokoju po `#`. Każdy, kto ma ten link albo zobaczy QR, może sterować TV. Ustawienia TV → Opcje → **Odłącz wszystkie telefony** tworzy nowy sekret i nowy QR. Worker przechowuje tylko skrót SHA-256 sekretu jako nazwę pokoju i sam sekret w pamięci pokoju (potrzebny do wydawania kodów).
+
+### TV pilotem
+
+Ekran startowy: duże pigułki ulubionych (Rivestream, YouTube, ChatGPT, Claude, Google), pod nimi duży pasek wyszukiwania. Strzałki przenoszą fokus, OK otwiera. Na pasku OK otwiera klawiaturę ekranową, Enter otwiera adres albo szuka w Google. Strzałka w górę z górnego rzędu (albo z górnej krawędzi strony) przechodzi na pasek przeglądarki: wstecz, dalej, odśwież, start, adres, dodaj do ulubionych, historia, ustawienia. Klawisz Menu otwiera ustawienia z przyciskiem **Wpisz adres**.
+
+### Natywna aplikacja Android w LAN (opcjonalnie)
+
 1. Uruchom BB TV. Na pasku TV są adres IPv4, port **8765** i PIN. PIN działa 2 minuty i jest jednorazowy. Menu / Ustawienia → Opcje → Nowy PIN odnawia parowanie.
 2. Telefon i TV podłącz do tej samej sieci bez izolacji klientów. Telefon wykrywa usługę NSD `_tvbrowser._tcp.`. Wybierz **Znajdź**; gdy mDNS jest blokowany, wpisz IP TV ręcznie (opcjonalnie `IP:8765`).
 3. Wpisz PIN i wybierz **Sparuj**. Telefon zapisuje token i adres TV. Następne uruchomienia łączą się automatycznie. Telefon sprawdza identyfikator TV przed wysłaniem zapisanego tokenu; inne urządzenie pod tym samym IP wymaga ponownego parowania. **Połącz** używa zapisanego tokenu. Przy odrzuceniu tokenu odnów PIN i sparuj ponownie.
@@ -123,7 +147,7 @@ TV nasłuchuje na porcie 8765 tylko podczas otwartej aplikacji. `GET /health` uj
 
 Token jest w prywatnych preferencjach telefonu, na TV tylko skrót SHA-256; backup Androida jest wyłączony. PIN jednorazowy, 2 minuty, po 5 błędach minuta blokady. Ustawienia TV pozwalają odwołać wszystkie tokeny. Do 8 zapisanych tokenów; parowanie dziewiątego telefonu unieważnia starsze. Do 4 równoległych połączeń. Brak autoryzacji = odrzucenie komendy. Wiadomości sprawdzane po dekodowaniu: do 16 KB, do 80/s na połączenie, dozwolone komendy i zakresy liczb. Odrzucane są nagłówki `Origin`, więc natywna aplikacja telefonu łączy się, a strony WWW nie dostają dostępu do pilota.
 
-HTTP/WS w LAN **nie szyfruje** PIN-u, tokenu ani komend. Używaj zaufanej domowej sieci. Nie przekierowuj 8765 na internet, nie wystawiaj usługi przez Cloudflare Tunnel. Mały NanoHTTPD nie stanowi ochrony przed atakiem DoS; limit JSON jest sprawdzany po odebraniu ramki, nie zapobiega alokacji dużej ramki przez bibliotekę. Prywatny projekt nie ma certyfikatów, kont użytkowników ani zdalnego dostępu. Hosting i domena Cloudflare nie są potrzebne do działania aplikacji.
+HTTP/WS w LAN **nie szyfruje** PIN-u, tokenu ani komend. Używaj zaufanej domowej sieci. Nie przekierowuj 8765 na internet, nie wystawiaj usługi przez Cloudflare Tunnel. Mały NanoHTTPD nie stanowi ochrony przed atakiem DoS; limit JSON jest sprawdzany po odebraniu ramki, nie zapobiega alokacji dużej ramki przez bibliotekę. Prywatny projekt nie ma certyfikatów, kont użytkowników ani zdalnego dostępu. Ten opis dotyczy natywnej aplikacji w LAN. Pilot w przeglądarce idzie przez Cloudflare po HTTPS/WSS (sekcja „Pilot na Cloudflare Workers”).
 
 Reconnect telefonu ma opóźnienie 1–15 s i heartbeat WebSocket. Po utracie połączenia nie odtwarza kolejki gestów ani kliknięć. TV musi być otwarty; zamknięcie/tło wyłącza serwer. NSD jest wygodą, ręczne IP pozostaje podstawową alternatywą. Zmiana adresu DHCP może wymagać ponownego wyboru TV/parowania; warto przypisać TV stały adres w routerze.
 
@@ -193,6 +217,27 @@ Do ręcznej weryfikacji na TV: parowanie poprawnym/błędnym/wygasłym PIN-em; r
 adb -s IP_TV:5555 shell dumpsys meminfo pl.bbtv.tv
 adb -s IP_TV:5555 logcat -s AndroidRuntime chromium
 ```
+
+## Pilot na Cloudflare Workers
+
+`web/` to Worker z plikami statycznymi (`web/public/`: pilot w stylu shadcn/ui, ikony, APK TV) i przekaźnikiem (`web/src/worker.js`):
+
+* `GET /ws/tv?room=SEKRET`, `GET /ws/phone?room=SEKRET`: WebSocket do Durable Object `Room` nazwanego skrótem SHA-256 sekretu. Komendy telefonu idą do TV, odpowiedzi TV do wszystkich telefonów w pokoju. Do 8 telefonów, wiadomości do 64 KB.
+* `POST /api/code/NNNNNN`: zamienia jednorazowy 6-cyfrowy kod (Durable Object `Code`, 2 minuty) na sekret pokoju.
+
+Wdrożenie (Node 22+ i `npx wrangler login`): `./scripts/deploy-web.sh`. Skrypt buduje APK TV, kopiuje je do ignorowanego `web/public/apk/` i wdraża Workera `bbtv`.
+
+Lokalnie: `cd web && npx wrangler dev`, potem `BBTV_RELAY=http://10.0.2.2:8799 ./scripts/run-demo.sh`. Worker nasłuchuje w LAN na porcie 8799. TV łączy się przez adres hosta emulatora `10.0.2.2`, ale QR zawiera wykryty adres LAN komputera (np. `http://192.168.0.24:8799/#r=…`), więc działa z aparatu telefonu w tej samej sieci Wi-Fi. Na komputerze pilot jest również pod `http://localhost:8799`.
+
+Adres QR można nadpisać przez `BBTV_SITE=http://ADRES_KOMPUTERA:8799`. `BBTV_RELAY` określa adres przekaźnika widziany przez TV, a `BBTV_SITE` adres tej samej usługi widziany przez telefon. Bez `BBTV_RELAY` skrypt używa produkcyjnego `https://bbtv.juraswis.workers.dev`. Po podpięciu docelowej domeny do Workera wystarczy ustawić `BBTV_RELAY=https://TWOJA_DOMENA` — połączenie TV i QR użyją tego adresu. Ponowne uruchomienie skryptu aktualizuje QR także w już otwartej aplikacji.
+
+### phrocs
+
+`mprocs.yaml` w katalogu głównym działa z `phrocs` i `mprocs`. Uruchom `phrocs`, wybierz proces i naciśnij `s`:
+
+* `web` + `tv-emulator`: lokalny Worker i emulator TV; QR otwiera lokalnego pilota na telefonie w tej samej sieci Wi-Fi. `tv-emulator-local` jest aliasem tego trybu.
+* `tv-emulator-prod`: emulator TV z pilotem pod domeną Cloudflare.
+* `deploy-web`: build APK TV i wdrożenie Workera.
 
 ## Decyzje i licencje zależności
 

@@ -49,14 +49,21 @@ class TvApi28Test {
     @Test fun bookmarksPersistOrderAndEscapeHtml() {
         val prefs = context.getSharedPreferences("test", Context.MODE_PRIVATE)
         val b = Bookmarks(prefs)
-        assertEquals(3, b.json().length())
+        assertEquals(listOf("https://www.rivestream.app/", "https://www.youtube.com/", "https://chatgpt.com/", "https://claude.ai/", "https://www.google.com/"), (0 until 5).map { b.json().getJSONObject(it).getString("url") })
         b.add("<script>bad</script>", "https://example.org/")
-        b.move(3, 0)
-        assertTrue(b.html().contains("&lt;script&gt;"))
-        assertFalse(b.html().contains("<script>bad"))
+        b.move(5, 0)
+        assertTrue(Pages.home(b.json(), "").contains("&lt;script&gt;"))
+        assertFalse(Pages.home(b.json(), "").contains("<script>bad"))
         assertEquals("https://example.org/", Bookmarks(prefs).json().getJSONObject(0).getString("url"))
         b.delete(0)
-        assertEquals(3, Bookmarks(prefs).json().length())
+        assertEquals(5, Bookmarks(prefs).json().length())
+    }
+    @Test fun oldDefaultBookmarksMigrateToNewDefaults() {
+        val prefs = context.getSharedPreferences("migrate", Context.MODE_PRIVATE)
+        prefs.edit().clear().putString("bookmarks", """[{"title":"YouTube","url":"https://www.youtube.com/"},{"title":"TVP VOD","url":"https://vod.tvp.pl/"},{"title":"Pluto TV","url":"https://pluto.tv/"},{"title":"Moja","url":"https://example.org/"}]""").commit()
+        val urls = Bookmarks(prefs).json().let { a -> (0 until a.length()).map { a.getJSONObject(it).getString("url") } }
+        assertEquals(listOf("https://www.rivestream.app/", "https://chatgpt.com/", "https://claude.ai/", "https://www.google.com/", "https://www.youtube.com/", "https://example.org/"), urls)
+        assertEquals(urls.size, Bookmarks(prefs).json().length())
     }
     @Test fun domainBoundaryAndMixedListFormats() {
         val rules = DomainRules.parse(sequenceOf("# comment", "0.0.0.0 ads.example.org", "127.0.0.1 tracker.example.net # note", "||banner.example.com^", "@@||allowed.example.org^", "||bad.example.org/path^", "localhost"))

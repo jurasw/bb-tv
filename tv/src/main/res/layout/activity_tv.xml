@@ -1,13 +1,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical">
     <FrameLayout android:id="@+id/toolbar" android:layout_width="match_parent" android:layout_height="64dp" android:background="@drawable/toolbar">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:paddingStart="24dp" android:paddingEnd="24dp">
-            <TextView android:id="@+id/home" style="@style/Chip" android:text="@string/home_text" />
-            <TextView android:id="@+id/settings" style="@style/Chip" android:layout_marginStart="10dp" android:text="@string/settings_text" />
-            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
-            <TextView android:id="@+id/status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxWidth="420dp" android:singleLine="true" android:ellipsize="end" android:textColor="#98989F" android:textSize="13sp" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:paddingStart="20dp" android:paddingEnd="20dp">
+            <ImageView android:id="@+id/back" style="@style/Tool" android:src="@drawable/ic_back" android:contentDescription="@string/back" />
+            <ImageView android:id="@+id/forward" style="@style/Tool" android:src="@drawable/ic_forward" android:contentDescription="@string/forward" />
+            <ImageView android:id="@+id/reload" style="@style/Tool" android:src="@drawable/ic_reload" android:contentDescription="@string/reload" />
+            <ImageView android:id="@+id/home" style="@style/Tool" android:src="@drawable/ic_home" android:contentDescription="@string/home_text" />
+            <TextView android:id="@+id/address" android:layout_width="0dp" android:layout_height="42dp" android:layout_weight="1" android:layout_marginStart="12dp" android:layout_marginEnd="12dp" android:background="@drawable/address" android:focusable="true" android:clickable="true" android:gravity="center_vertical" android:drawableStart="@drawable/ic_search" android:drawablePadding="12dp" android:drawableTint="#A1A1A1" android:paddingStart="16dp" android:paddingEnd="16dp" android:singleLine="true" android:ellipsize="middle" android:textColor="#FAFAFA" android:textColorHint="#A1A1A1" android:hint="@string/address_hint" android:textSize="16sp" />
+            <TextView android:id="@+id/status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginEnd="8dp" android:maxWidth="260dp" android:singleLine="true" android:ellipsize="end" android:textColor="#A1A1A1" android:textSize="13sp" />
+            <ImageView android:id="@+id/star" style="@style/Tool" android:src="@drawable/ic_star" android:contentDescription="@string/bookmark" />
+            <ImageView android:id="@+id/history" style="@style/Tool" android:src="@drawable/ic_history" android:contentDescription="@string/history" />
+            <ImageView android:id="@+id/settings" style="@style/Tool" android:src="@drawable/ic_settings" android:contentDescription="@string/settings_text" />
         </LinearLayout>
-        <TextView android:id="@+id/address" android:layout_width="520dp" android:layout_height="40dp" android:layout_gravity="center" android:background="@drawable/address" android:gravity="center" android:paddingStart="20dp" android:paddingEnd="20dp" android:singleLine="true" android:ellipsize="middle" android:textColor="#F5F5F7" android:textSize="15sp" />
-        <View android:id="@+id/progress" android:layout_width="match_parent" android:layout_height="2dp" android:layout_gravity="bottom" android:background="#0A84FF" android:visibility="invisible" />
+        <View android:id="@+id/progress" android:layout_width="match_parent" android:layout_height="2dp" android:layout_gravity="bottom" android:background="#FAFAFA" android:visibility="invisible" />
     </FrameLayout>
     <FrameLayout android:id="@+id/browser_frame" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
         <WebView android:id="@+id/web" android:layout_width="match_parent" android:layout_height="match_parent" />

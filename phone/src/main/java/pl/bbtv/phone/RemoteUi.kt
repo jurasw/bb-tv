@@ -161,6 +161,7 @@ fun RemoteScreen(state: RemoteState, remote: Remote) {
         var sheet by rememberSaveable { mutableStateOf(Sheet.None) }
         var dpad by rememberSaveable { mutableStateOf(false) }
         LaunchedEffect(Unit) { if (state.host.isBlank()) sheet = Sheet.Connect }
+        LaunchedEffect(state.connected) { if (state.connected && sheet == Sheet.Connect) sheet = Sheet.None }
         Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color(0xFF16161A), Ink, Ink)))) {
             Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 20.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Header(state, onDevice = { sheet = Sheet.Connect }, onFavorites = { sheet = Sheet.Favorites }, onSettings = { sheet = Sheet.Settings })
@@ -394,7 +395,7 @@ private fun ColumnScope.ConnectSheet(state: RemoteState, remote: Remote) {
         PillButton("Połącz", { remote.connect(false) }, Modifier.weight(1f), Raised)
     }
     PillButton("Sparuj", { remote.connect(true) }, Modifier.fillMaxWidth(), Accent)
-    Text("PIN i adres widać w prawym górnym rogu telewizora. W emulatorze wpisz 10.0.2.2:18765.", color = Secondary, fontSize = 13.sp)
+    Text("Najszybciej: zeskanuj aparatem kod QR z ekranu startowego TV. PIN i adres widać też w prawym górnym rogu telewizora. W emulatorze wpisz 10.0.2.2:18765.", color = Secondary, fontSize = 13.sp)
 }
 
 @Composable

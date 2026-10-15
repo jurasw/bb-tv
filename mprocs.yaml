@@ -1,0 +1,19 @@
+# Dev processes for phrocs (or mprocs). Select a process and press `s` to start it, `x` to stop.
+# web + tv-emulator: local Worker and TV app; scan the QR from a phone on the same Wi-Fi.
+# tv-emulator-prod: TV app using the production Cloudflare domain.
+procs:
+  tv-emulator:
+    shell: BBTV_RELAY=http://10.0.2.2:8799 ./scripts/run-demo.sh && tail -n +1 -f .tools/demo-tv.log
+    autostart: false
+  web:
+    shell: cd web && PATH="$HOME/.nvm/versions/node/v23.5.0/bin:$PATH" npx -y wrangler@4 dev --port 8799
+    autostart: false
+  tv-emulator-local:
+    shell: BBTV_RELAY=http://10.0.2.2:8799 ./scripts/run-demo.sh && tail -n +1 -f .tools/demo-tv.log
+    autostart: false
+  tv-emulator-prod:
+    shell: BBTV_RELAY=prod ./scripts/run-demo.sh && tail -n +1 -f .tools/demo-tv.log
+    autostart: false
+  deploy-web:
+    shell: PATH="$HOME/.nvm/versions/node/v23.5.0/bin:$PATH" ./scripts/deploy-web.sh
+    autostart: false

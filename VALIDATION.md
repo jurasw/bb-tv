@@ -1,4 +1,22 @@
-# Weryfikacja — 2026-10-15
+# Weryfikacja — 2026-10-15–16
+
+## Cloudflare — kontynuacja 2026-10-16
+
+Wdrożenie z poprzedniej sesji zakończyło się pomyślnie. Log Wrangler potwierdza wersję `99462da5-0703-4f2e-8aed-27734f41308a` pod **https://bbtv.juraswis.workers.dev**. Nie było potrzeby ponownego wdrożenia.
+
+Sprawdzenia wykonane po wznowieniu pracy:
+
+* Strona, `app.js`, `style.css`, manifest, ikona SVG i APK zwracają HTTP 200. Pobrane pliki są identyczne z lokalnymi plikami w `web/public/`.
+* APK TV jest identyczne z `tv/build/outputs/apk/debug/tv-debug.apk`: **2 106 135 B**, SHA-256 `cffbd62947a2a8b7aa5911c1a80875d8db55ce90771e24fe90af6ba200cd0c53`.
+* Test produkcyjnego Workera na osobnych losowych pokojach: obecność TV/telefonu, komenda telefonu → TV, stan TV → telefon, wydanie 6-cyfrowego kodu z TTL 120 s, poprawne wykorzystanie kodu i odrzucenie ponownej próby (404), osobny pokój bez TV oraz informacja o odłączeniu TV — **OK**. Upływu pełnych 120 s nie testowano.
+* Uruchomiony emulator `BB_TV_API30` przełączono na produkcyjny przekaźnik (`--es relay prod`). Klient WebSocket telefonu przez Cloudflare otrzymał obecność TV i poprawną odpowiedź `state` z aplikacji Android (5 zakładek) — **OK**.
+* `node scripts/test-browser-js.cjs` oraz `node --check web/public/app.js` — **OK**.
+
+Sprawdzono również zapisane raporty końcowej walidacji poprzedniej sesji: **13 testów, 0 błędów** (4 protokołu i 9 TV), lint **0 błędów**, 10 ostrzeżeń TV i 2 telefonu. Raporty pochodzą z 2026-10-15/16; pełnego Gradle nie uruchamiano ponownie przy tej kontynuacji. Poniższe wyniki wcześniejszych etapów, w tym stare rozmiary APK, pozostawiono jako historię.
+
+Test produkcyjny emulatora potwierdza połączenie aplikacji Android z Cloudflare. Test na fizycznym Xiaomi i sprawdzenie odtwarzania mediów pozostają do wykonania.
+
+## Pierwotna weryfikacja — 2026-10-15
 
 Środowisko: macOS ARM64, JDK 17, Gradle 8.9, AGP 8.7.3, Kotlin 2.0.21, SDK 35 / build-tools 35.0.0. Budowanie wyłącznie z terminala.
 
@@ -41,8 +59,8 @@ Przerwane pobrania JDK/SDK i zależności testów zostały wznowione i zweryfiko
 
 Sumy dotyczą lokalnych debug APK; kolejny build na innym komputerze może mieć inne podpisy i sumy.
 
-## Niewykonane na urządzeniu
+## Niewykonane na urządzeniu w pierwotnej weryfikacji
 
-`adb devices` zwróciło pustą listę. **Nie wykonano instalacji ani testu na Xiaomi, telefonie lub emulatorze.** API 28 sprawdzono przez Robolectric, bez prawdziwego Chromium, GPU i dekoderów Androida. Testy JS sprawdzają logikę, nie renderowanie na starym WebView.
+Na tym etapie `adb devices` zwróciło pustą listę. **Nie wykonano wtedy instalacji ani testu na Xiaomi, telefonie lub emulatorze.** API 28 sprawdzono przez Robolectric, bez prawdziwego Chromium, GPU i dekoderów Androida. Testy JS sprawdzają logikę, nie renderowanie na starym WebView. Późniejszy test emulatora z Cloudflare opisano na początku dokumentu.
 
 Do sprawdzenia na fizycznym TV pozostają: realny pilot, NSD przez router, sterowanie dotykiem z telefonu, lokalny silnik mowy API 31+, HLS/DASH i kodeki, DRM serwisów, fullscreen konkretnego WebView, pauza w obcych iframe, skuteczność selektorów reklam na aktualnych stronach oraz zużycie RAM przy dłuższym oglądaniu. Instrukcja adb i scenariusze są w README.

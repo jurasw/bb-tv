@@ -1,0 +1,11 @@
+{
+  "name": "bbtv",
+  "main": "src/worker.js",
+  "compatibility_date": "2025-09-01",
+  "account_id": "1185239ba27e9677adc3afb821b7e042",
+  "workers_dev": true,
+  "dev": { "ip": "0.0.0.0", "port": 8799 },
+  "assets": { "directory": "./public", "html_handling": "auto-trailing-slash", "not_found_handling": "404-page", "run_worker_first": ["/ws/*", "/api/*"] },
+  "durable_objects": { "bindings": [{ "name": "ROOMS", "class_name": "Room" }, { "name": "CODES", "class_name": "Code" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room", "Code"] }]
+}
